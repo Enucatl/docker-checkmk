@@ -1,0 +1,33 @@
+services:
+  checkmk:
+    image: checkmk/check-mk-cloud:2.4.0p17
+    restart: unless-stopped
+    
+    # 1. No direct port exposure needed as Traefik will handle routing on the network
+    # ports:
+    #   - "8080:5000"
+    
+    volumes:
+      - monitoring:/omd/sites
+      # Read-only mount for host timezone synchronization
+      - /etc/localtime:/etc/localtime:ro
+      
+      # Temporary filesystem (Corrected syntax for Docker Compose)
+      - /opt/omd/sites/cmk/tmp:/opt/omd/sites/cmk/tmp:tmpfs,size=1G
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.checkmk.rule=Host(`checkmk.${DOCKER_DOMAIN}`)"
+      - "traefik.http.routers.checkmk.entrypoints=https"
+      - "traefik.http.routers.checkmk.tls=true"
+      - "traefik.http.services.checkmk.loadbalancer.server.port=5000"
+
+    networks:
+      - traefik_proxy
+
+volumes:
+  monitoring:
+
+networks:
+  traefik_proxy:
+    external: true
