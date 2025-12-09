@@ -5,6 +5,11 @@ services:
     extra_hosts:
       - "${DOCKER_DOMAIN}:host-gateway"
     
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
     volumes:
       - monitoring:/omd/sites
       - /etc/localtime:/etc/localtime:ro
@@ -13,26 +18,12 @@ services:
       - ./scripts/check_mk_telegram-notify.sh:/opt/omd/versions/default/share/check_mk/notifications/telegram.sh
 
     labels:
-      # webserver port 5000
       - "traefik.enable=true"
       - "traefik.http.routers.checkmk.rule=Host(`checkmk.${DOCKER_DOMAIN}`)"
       - "traefik.http.routers.checkmk.entrypoints=https"
       - "traefik.http.routers.checkmk.tls=true"
       - "traefik.http.routers.checkmk.service=checkmk"
       - "traefik.http.services.checkmk.loadbalancer.server.port=5000"
-      # webserver port 5000
-      - "traefik.enable=true"
-      - "traefik.http.routers.checkmk-api.rule=Host(`checkmk-api.${DOCKER_DOMAIN}`)"
-      - "traefik.http.routers.checkmk-api.entrypoints=https"
-      - "traefik.http.routers.checkmk-api.tls=true"
-      - "traefik.http.routers.checkmk-api.service=checkmk-api"
-      - "traefik.http.services.checkmk-api.loadbalancer.server.port=8000"
-      # tcp port 8000
-      # - "traefik.tcp.routers.checkmk-api-tcp.rule=HostSNI(`checkmk.${DOCKER_DOMAIN}`)"
-      # - "traefik.tcp.routers.checkmk-api-tcp.entrypoints=checkmk"
-      # - "traefik.tcp.routers.checkmk-api-tcp.tls=true"
-      # - "traefik.tcp.routers.checkmk-api-tcp.service=checkmk-api-tcp-service"
-      # - "traefik.tcp.services.checkmk-api-tcp-service.loadbalancer.server.port=8000"
 
     networks:
       - traefik_proxy
