@@ -5,17 +5,13 @@ services:
     extra_hosts:
       - "${DOCKER_DOMAIN}:host-gateway"
     
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-
     volumes:
       - monitoring:/omd/sites
       - /etc/localtime:/etc/localtime:ro
-      - /opt/omd/sites/cmk/tmp:/opt/omd/sites/cmk/tmp:tmpfs,size=48m
+      - /opt/omd/sites/cmk/tmp:/opt/omd/sites/cmk/tmp:tmpfs,size=256m
       - ./scripts/mk_docker.py:/opt/omd/versions/default/share/check_mk/agents/plugins/mk_docker.py
       - ./scripts/check_mk_telegram-notify.sh:/opt/omd/versions/default/share/check_mk/notifications/telegram.sh
+      - ./config/apache.conf:/omd/sites/cmk/etc/apache/apache.conf
 
     labels:
       - "checkmk_monitor=true"
