@@ -1,6 +1,11 @@
 services:
   checkmk:
+    extends:
+      file: ../compose-security-baseline/hardening.yml
+      service: limits-xxlarge
     image: checkmk/check-mk-cloud:2.4.0p17
+    # Checkmk runs a full monitoring site; keep privilege transitions unchanged until a site-level smoke test passes.
+    cpu_shares: 256
     restart: unless-stopped
     extra_hosts:
       - "${DOCKER_DOMAIN}:host-gateway"
