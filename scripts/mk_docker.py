@@ -71,7 +71,9 @@ import time
 
 def which(prg):
     for path in os.environ["PATH"].split(os.pathsep):
-        if os.path.isfile(os.path.join(path, prg)) and os.access(os.path.join(path, prg), os.X_OK):
+        if os.path.isfile(os.path.join(path, prg)) and os.access(
+            os.path.join(path, prg), os.X_OK
+        ):
             return os.path.join(path, prg)
     return None
 
@@ -194,7 +196,9 @@ class Section(list):
         if piggytarget is not None:
             self.append("<<<<%s>>>>" % piggytarget)
         if name is not None:
-            persist_header = "" if persist_until is None else ":persist(%d)" % persist_until
+            persist_header = (
+                "" if persist_until is None else ":persist(%d)" % persist_until
+            )
             self.append("<<<%s:sep(124)%s>>>" % (name, persist_header))
             version_json = json.dumps(Section.version_info)
             self.append("@docker_version_info|%s" % version_json)
@@ -306,12 +310,14 @@ class MKDockerClient(docker.DockerClient):  # type: ignore[misc]
         super().__init__(config["base_url"], version=MKDockerClient.API_VERSION)
         all_containers = _robust_inspect(self, "containers")
         if config["container_id"] == "name":
-            self.all_containers = {c.attrs["Name"].lstrip("/"): c for c in all_containers}
+            self.all_containers = {
+                c.attrs["Name"].lstrip("/"): c for c in all_containers
+            }
         elif config["container_id"] == "long":
             self.all_containers = {c.attrs["Id"]: c for c in all_containers}
         else:
             self.all_containers = {c.attrs["Id"][:12]: c for c in all_containers}
-        
+
         label = config.get("label")
         # no good way of changing the docker.cfg file
         label = "checkmk_monitor"
@@ -374,7 +380,9 @@ class MKDockerClient(docker.DockerClient):  # type: ignore[misc]
 
     def run_agent(self, container):
         """run checkmk agent in container"""
-        result = container.exec_run(["check_mk_agent"], environment=self._env, socket=True)
+        result = container.exec_run(
+            ["check_mk_agent"], environment=self._env, socket=True
+        )
         return self.get_stdout(result)
 
     def get_container_stats(self, container_key):
@@ -393,7 +401,9 @@ class MKDockerClient(docker.DockerClient):  # type: ignore[misc]
         # streaming mode. In non-streaming mode, the error type is version-dependent.
         stats_generator = container.stats(stream=True, decode=True)
         try:
-            next(stats_generator)  # we need to advance the generator by one to get useful data
+            next(
+                stats_generator
+            )  # we need to advance the generator by one to get useful data
             stats = next(stats_generator)
         except (
             # container was removed in between collecting containers and here
@@ -490,7 +500,9 @@ def section_node_disk_usage(client, config):
 
     # containers:
     containers = data.get("Containers") or []
-    row = get_row("containers", containers, lambda c: c["State"] != "running", key="SizeRw")
+    row = get_row(
+        "containers", containers, lambda c: c["State"] != "running", key="SizeRw"
+    )
     section.append(row)
 
     # volumes
@@ -640,7 +652,9 @@ def section_container_agent(client, container_id):
         section.append(result)
         section.write()
     else:
-        LOGGER.warning("running check_mk_agent in container %s failed: %s", container_id, result)
+        LOGGER.warning(
+            "running check_mk_agent in container %s failed: %s", container_id, result
+        )
     return success
 
 

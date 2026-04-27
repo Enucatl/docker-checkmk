@@ -18,6 +18,12 @@ services:
       - /opt/omd/sites/cmk/tmp:/opt/omd/sites/cmk/tmp:tmpfs,size=256m
       - ./scripts/mk_docker.py:/opt/omd/versions/default/share/check_mk/agents/plugins/mk_docker.py
       - ./scripts/check_mk_telegram-notify.sh:/opt/omd/versions/default/share/check_mk/notifications/telegram.sh
+      # Keep the automation helper at one worker instead of the packaged default of two.
+      - ./config/automation-helper/_config.py:/omd/versions/default/lib/python3/cmk/base/automation_helper/_config.py
+      - ./config/checkmk-site/etc/omd/site.conf:/omd/sites/cmk/etc/omd/site.conf
+      - ./config/checkmk-site/etc/check_mk/conf.d/wato/global.mk:/omd/sites/cmk/etc/check_mk/conf.d/wato/global.mk
+      - ./config/checkmk-site/etc/check_mk/conf.d/wato/rules.mk:/omd/sites/cmk/etc/check_mk/conf.d/wato/rules.mk
+      - ./config/checkmk-site/etc/check_mk/conf.d/wato/docker_home_arpa_containers/rules.mk:/omd/sites/cmk/etc/check_mk/conf.d/wato/docker_home_arpa_containers/rules.mk
       - ./config/apache.conf:/omd/sites/cmk/etc/apache/apache.conf
 
     labels:
